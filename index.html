@@ -88,6 +88,84 @@
             text-align: center; word-break: break-all; line-height: 1.5;
         }
 
+        /* ==========================================
+           4. 动效增强（不改变布局结构）
+           ========================================== */
+        #scroll-progress {
+            position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+            background: linear-gradient(90deg, var(--brand-red), #E98A85);
+            z-index: 60; transition: width 0.12s linear;
+        }
+
+        .section-title::after {
+            content: ''; display: block; width: 0; height: 4px; margin: 18px auto 0;
+            background: var(--brand-red); border-radius: 99px;
+            transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active .section-title::after,
+        .section-title.active::after { width: 72px; }
+
+        nav { transition: box-shadow 0.4s ease, background-color 0.4s ease; }
+        nav.nav-scrolled { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06); background-color: rgba(250, 249, 246, 0.98); }
+
+        .ingredient-card {
+            position: relative; overflow: hidden;
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.45s ease, border-color 0.45s ease;
+        }
+        .ingredient-card::after {
+            content: ''; position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(198, 40, 40, 0.07), transparent);
+            transform: skewX(-18deg); transition: left 0.75s ease; pointer-events: none;
+        }
+        .ingredient-card:hover::after { left: 125%; }
+        .ingredient-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 24px 48px rgba(198, 40, 40, 0.10);
+            border-color: var(--brand-red-light);
+        }
+        .ingredient-badge { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .ingredient-card:hover .ingredient-badge { transform: scale(1.06) rotate(-3deg); }
+
+        .count { font-variant-numeric: tabular-nums; }
+
+        /* ==========================================
+           5. 顶部分区导航
+           ========================================== */
+        html { scroll-behavior: smooth; }
+        section, header { scroll-margin-top: 132px; }
+
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .nav-chip {
+            flex: 0 0 auto; white-space: nowrap;
+            padding: 8px 16px; border-radius: 999px;
+            font-size: 12px; font-weight: 800; letter-spacing: 0.08em;
+            color: var(--brand-muted); border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-chip:hover { color: var(--brand-dark); background: #F3EFEA; }
+        .nav-chip.active {
+            color: #fff; background: var(--brand-red); border-color: var(--brand-red);
+            box-shadow: 0 6px 18px rgba(198, 40, 40, 0.25);
+        }
+
+        /* 卡片错峰入场（不改结构，只加延迟） */
+        [data-stagger] > *:nth-child(1) { transition-delay: 0.05s; }
+        [data-stagger] > *:nth-child(2) { transition-delay: 0.13s; }
+        [data-stagger] > *:nth-child(3) { transition-delay: 0.21s; }
+        [data-stagger] > *:nth-child(4) { transition-delay: 0.29s; }
+        [data-stagger] > *:nth-child(5) { transition-delay: 0.37s; }
+        [data-stagger] > *:nth-child(6) { transition-delay: 0.45s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { transition: none !important; opacity: 1 !important; transform: none !important; }
+            .animate-float, .animate-float-delayed { animation: none !important; }
+            .ingredient-card::after { display: none; }
+            .section-title::after { width: 72px; }
+        }
+
         .script-text-content { transition: transform 0.4s ease; }
         .script-card:hover .script-text-content { transform: translateX(6px); }
 
@@ -148,6 +226,9 @@
 </head>
 <body>
 
+    <!-- 滚动进度条 -->
+    <div id="scroll-progress"></div>
+
     <!-- 顶部导航 -->
     <nav class="fixed w-full top-0 z-50 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-gray-200/50">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -159,10 +240,23 @@
                 <span>Apply Sample</span>
             </a>
         </div>
+
+        <!-- 分区导航 -->
+        <div class="border-t border-gray-200/60">
+            <div class="max-w-7xl mx-auto px-3 md:px-6">
+                <div class="flex items-center gap-1.5 md:gap-2 overflow-x-auto no-scrollbar py-2">
+                    <a href="#system" class="nav-chip">01 STEP</a>
+                    <a href="#why" class="nav-chip">02 WHY IT WORKS</a>
+                    <a href="#formula" class="nav-chip">03 FORMULA</a>
+                    <a href="#numbers" class="nav-chip">04 NUMBERS</a>
+                    <a href="#scripts" class="nav-chip">05 SCRIPTS</a>
+                </div>
+            </div>
+        </div>
     </nav>
 
     <!-- Hero 区域 (带入场动效与双图错位) -->
-    <header class="pt-32 pb-20 px-6 relative overflow-hidden min-h-[90vh] flex items-center" id="hero-section">
+    <header class="pt-44 pb-20 px-6 relative overflow-hidden min-h-[90vh] flex items-center" id="hero-section">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center w-full relative z-10">
             
             <!-- 左侧文字 -->
@@ -200,7 +294,7 @@
     </header>
 
     <!-- 四步敷膜体系 -->
-    <section class="py-20 bg-white">
+    <section id="system" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-6 reveal">
             <div class="text-center mb-12">
                 <h2 class="text-4xl md:text-5xl font-black mb-4" style="color: var(--brand-dark)">MASK TO FOAM SYSTEM</h2>
@@ -234,11 +328,11 @@
     </section>
 
     <!-- Why it works 区域 (3 大卖点) -->
-    <section class="py-24 bg-[#F3EFEA]">
+    <section id="why" class="py-24 bg-[#F3EFEA]">
         <div class="max-w-7xl mx-auto px-6 reveal">
             <div class="text-center mb-16">
-                <h2 class="text-5xl md:text-6xl font-black mb-6" style="color: var(--brand-dark)">WHY IT WORKS</h2>
-                <p class="text-2xl font-medium" style="color: var(--brand-muted)">Mask. Green tea. No tightness after the rinse.</p>
+                <h2 class="section-title text-5xl md:text-6xl font-black mb-6" style="color: var(--brand-dark)">WHY IT WORKS</h2>
+                <p class="text-2xl font-medium" style="color: var(--brand-muted)">One step instead of two &mdash; with no trade-off between clean and calm.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
@@ -248,62 +342,135 @@
                         <img src="img/abnc-c3-cleanser-02-mask-fit-face.jpg" alt="Green tea mask applied to dry skin" class="w-full h-full object-cover">
                     </div>
                     <div class="text-xs font-black tracking-[0.25em] mb-3" style="color: var(--brand-red)">01 / ONE STEP</div>
-                    <h3 class="text-3xl font-extrabold mb-4" style="color: var(--brand-dark)">Mask First, Then Foam</h3>
-                    <p class="text-lg leading-relaxed" style="color: var(--brand-muted)">Apply to dry skin and it sits like a mask. Add water and it lathers into a deep cleanser, so the mask step never has to be scheduled.</p>
-                    <div class="mt-auto pt-5 border-t border-gray-100 text-sm font-bold" style="color: var(--brand-dark)">30 seconds &middot; no separate mask</div>
+                    <h3 class="text-2xl font-extrabold mb-4 leading-tight" style="color: var(--brand-dark)">A Mask and a Cleanser. Not Two Products.</h3>
+                    <p class="text-lg leading-relaxed" style="color: var(--brand-muted)">Dry, it goes on as a 20% essence mask and hugs the skin. Add water and it turns into a foam that takes off the day &mdash; thirty seconds, no ten-minute wait, no second product.</p>
+                    <div class="mt-auto pt-5 border-t border-gray-100 text-sm font-bold" style="color: var(--brand-dark)">1 step &middot; 30 seconds &middot; 20% essence complex</div>
                 </div>
                 <!-- 卖点 2 -->
                 <div class="bg-white rounded-3xl p-8 float-card flex flex-col">
                     <div class="w-full h-64 mb-8 rounded-2xl overflow-hidden shadow-sm">
                         <img src="img/abnc-c3-cleanser-01-green-tea-cream-texture.jpg" alt="Green tea soft-serve cream texture" class="w-full h-full object-cover">
                     </div>
-                    <div class="text-xs font-black tracking-[0.25em] mb-3" style="color: var(--brand-red)">02 / 20% ESSENCE</div>
-                    <h3 class="text-3xl font-extrabold mb-4" style="color: var(--brand-dark)">Green Tea Essence Complex</h3>
-                    <p class="text-lg leading-relaxed" style="color: var(--brand-muted)">20% of the formula is a skincare essence complex built on Jeju green tea water. The texture is a dense soft-serve cream that stays put on dry skin.</p>
-                    <div class="mt-auto pt-5 border-t border-gray-100 text-sm font-bold" style="color: var(--brand-dark)">20% essence complex &middot; Jeju green tea water</div>
+                    <div class="text-xs font-black tracking-[0.25em] mb-3" style="color: var(--brand-red)">02 / NO TRADE-OFF</div>
+                    <h3 class="text-2xl font-extrabold mb-4 leading-tight" style="color: var(--brand-dark)">Takes Off SPF. Leaves the Barrier.</h3>
+                    <p class="text-lg leading-relaxed" style="color: var(--brand-muted)">97.57% of sunscreen lifts in one wash, while water loss drops 31.72% &mdash; a plain-water cleanse only managed 12.70%. Skin still holds 78.20% of its moisture 30 minutes after the rinse.</p>
+                    <div class="mt-auto pt-5 border-t border-gray-100 text-sm font-bold" style="color: var(--brand-dark)">97.57% SPF &middot; TEWL -31.72% &middot; 78.20% moisture at 30 min</div>
                 </div>
                 <!-- 卖点 3 -->
                 <div class="bg-white rounded-3xl p-8 float-card flex flex-col">
                     <div class="w-full h-64 mb-8 rounded-2xl overflow-hidden shadow-sm">
                         <img src="img/abnc-c3-cleanser-03-mask-to-foam-steps.jpg" alt="Mask to foam four step cross section" class="w-full h-full object-cover">
                     </div>
-                    <div class="text-xs font-black tracking-[0.25em] mb-3" style="color: var(--brand-red)">03 / NO TIGHTNESS</div>
-                    <h3 class="text-3xl font-extrabold mb-4" style="color: var(--brand-dark)">Clean, But Never Tight</h3>
-                    <p class="text-lg leading-relaxed" style="color: var(--brand-muted)">Plant-derived amino acid cleansing lifts sunscreen, sebum and pore dirt. 8 hyaluronic acids plus ceramide NP leave a moisture barrier behind.</p>
-                    <div class="mt-auto pt-5 border-t border-gray-100 text-sm font-bold" style="color: var(--brand-dark)">97.57% sunscreen &middot; 95.85% pore dirt &middot; 0.00 irritation</div>
+                    <div class="text-xs font-black tracking-[0.25em] mb-3" style="color: var(--brand-red)">03 / BOTH ENDS</div>
+                    <h3 class="text-2xl font-extrabold mb-4 leading-tight" style="color: var(--brand-dark)">Strong Enough for Oil. Calm Enough for Reactive Skin.</h3>
+                    <p class="text-lg leading-relaxed" style="color: var(--brand-muted)">Kaolin and AHA pull sebum down 67.70% in a single wash. Centella, tea tree and guaiazulene bring redness down 16.02% &mdash; and the 34-adult patch test scored 0.00.</p>
+                    <div class="mt-auto pt-5 border-t border-gray-100 text-sm font-bold" style="color: var(--brand-dark)">67.70% sebum &middot; 0.00 irritation &middot; -16.02% redness</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心成分 -->
+    <section id="formula" class="py-24 bg-[#FAF9F6]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16 reveal">
+                <div class="text-xs font-black tracking-[0.3em] mb-4" style="color: var(--brand-red)">THE FORMULA</div>
+                <h2 class="section-title text-5xl md:text-6xl font-black mb-6" style="color: var(--brand-dark)">WHAT'S INSIDE</h2>
+                <p class="text-2xl font-medium" style="color: var(--brand-muted)">Four core actives and two barrier systems, doing the work while you lather.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" data-stagger>
+                <div class="ingredient-card reveal bg-white rounded-3xl p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-black tracking-[0.25em]" style="color: var(--brand-red)">01 &middot; CORE</span>
+                        <span class="ingredient-badge text-xs font-bold px-3 py-1 rounded-full bg-[#F3EFEA]" style="color: var(--brand-muted)">BASE</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3" style="color: var(--brand-dark)">Jeju Green Tea Water</h3>
+                    <p class="text-base leading-relaxed" style="color: var(--brand-muted)">Green tea grown on Jeju, milled with HNB-PPG so more leaf surface is exposed and more of the good stuff comes out. It is the water base of the 20% essence complex.</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100 text-xs font-bold" style="color: var(--brand-dark)">HNB-PPG extraction</div>
+                </div>
+
+                <div class="ingredient-card reveal bg-white rounded-3xl p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-black tracking-[0.25em]" style="color: var(--brand-red)">02 &middot; CORE</span>
+                        <span class="ingredient-badge text-xs font-bold px-3 py-1 rounded-full bg-[#F3EFEA]" style="color: var(--brand-muted)">CALM</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3" style="color: var(--brand-dark)">C&sup3; ELIXIR&trade;</h3>
+                    <p class="text-base leading-relaxed" style="color: var(--brand-muted)">Centella asiatica, tea tree and guaiazulene. The soothing trio behind the C&sup3; CARE line, aimed at skin that turns reactive the minute it hits water.</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100 text-xs font-bold" style="color: var(--brand-dark)">Centella &middot; tea tree &middot; guaiazulene</div>
+                </div>
+
+                <div class="ingredient-card reveal bg-white rounded-3xl p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-black tracking-[0.25em]" style="color: var(--brand-red)">03 &middot; CORE</span>
+                        <span class="ingredient-badge text-xs font-bold px-3 py-1 rounded-full bg-[#F3EFEA]" style="color: var(--brand-muted)">CLEAR</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3" style="color: var(--brand-dark)">Kaolin Clay</h3>
+                    <p class="text-base leading-relaxed" style="color: var(--brand-muted)">Porous clay that adsorbs excess sebum and the debris sitting in pores, so oil clears without a scrub or a second product.</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100 text-xs font-bold" style="color: var(--brand-dark)">adsorbs sebum + pore dirt</div>
+                </div>
+
+                <div class="ingredient-card reveal bg-white rounded-3xl p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-black tracking-[0.25em]" style="color: var(--brand-red)">04 &middot; CORE</span>
+                        <span class="ingredient-badge text-xs font-bold px-3 py-1 rounded-full bg-[#F3EFEA]" style="color: var(--brand-muted)">SMOOTH</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3" style="color: var(--brand-dark)">AHA &middot; Citric Acid</h3>
+                    <p class="text-base leading-relaxed" style="color: var(--brand-muted)">Gentle surface keratin care, so skin reads smooth afterwards instead of scrubbed.</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100 text-xs font-bold" style="color: var(--brand-dark)">surface smoothing</div>
+                </div>
+
+                <div class="ingredient-card reveal bg-white rounded-3xl p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-black tracking-[0.25em]" style="color: var(--brand-red)">05 &middot; SUPPORT</span>
+                        <span class="ingredient-badge text-xs font-bold px-3 py-1 rounded-full bg-[#F3EFEA]" style="color: var(--brand-muted)">HYDRATE</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3" style="color: var(--brand-dark)">HYDSOL-H8</h3>
+                    <p class="text-base leading-relaxed" style="color: var(--brand-muted)">Eight hyaluronic acids at different molecular weights, so water goes in at several depths and stays through the rinse.</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100 text-xs font-bold" style="color: var(--brand-dark)">8 hyaluronic acids</div>
+                </div>
+
+                <div class="ingredient-card reveal bg-white rounded-3xl p-8 border border-gray-100">
+                    <div class="flex items-center justify-between mb-6">
+                        <span class="text-xs font-black tracking-[0.25em]" style="color: var(--brand-red)">06 &middot; SUPPORT</span>
+                        <span class="ingredient-badge text-xs font-bold px-3 py-1 rounded-full bg-[#F3EFEA]" style="color: var(--brand-muted)">BARRIER</span>
+                    </div>
+                    <h3 class="text-2xl font-extrabold mb-3" style="color: var(--brand-dark)">SKIN CCL COMPLEX 131</h3>
+                    <p class="text-base leading-relaxed" style="color: var(--brand-muted)">Ceramide NP, cholesterol and fatty acids, put back in the same trio the barrier is built from, so the rinse does not take the barrier with it.</p>
+                    <div class="mt-6 pt-4 border-t border-gray-100 text-xs font-bold" style="color: var(--brand-dark)">ceramide NP &middot; cholesterol &middot; fatty acids</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- 核心数据 -->
-    <section class="py-24 bg-white">
+    <section id="numbers" class="py-24 bg-white">
         <div class="max-w-7xl mx-auto px-6 reveal">
             <div class="text-center mb-16">
-                <h2 class="text-5xl md:text-6xl font-black mb-4" style="color: var(--brand-dark)">ONE USE. REAL NUMBERS.</h2>
+                <h2 class="section-title text-5xl md:text-6xl font-black mb-4" style="color: var(--brand-dark)">ONE USE. REAL NUMBERS.</h2>
                 <p class="text-gray-500 text-xl font-medium">OATC clinical study, 31 adults (34 for the patch test). Single use unless noted.</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" data-stagger>
+                <div class="reveal bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
                     <img src="img/abnc-c3-clinical-01-sunscreen-removal.jpg" alt="Sunscreen removal before and after" class="w-full h-32 object-cover rounded-xl mb-4">
-                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)">97.57%</h3>
+                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)"><span class="count" data-target="97.57" data-decimals="2">97.57</span>%</h3>
                     <p class="font-extrabold text-lg text-center" style="color: var(--brand-dark)">Sunscreen Removal</p>
                     <p class="text-xs font-semibold mt-1 text-center" style="color: var(--brand-muted)">after 1 wash</p>
                 </div>
-                <div class="bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
+                <div class="reveal bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
                     <img src="img/abnc-c3-clinical-02-pore-dirt.jpg" alt="Pore dirt before and after" class="w-full h-32 object-cover rounded-xl mb-4">
-                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)">95.85%</h3>
+                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)"><span class="count" data-target="95.85" data-decimals="2">95.85</span>%</h3>
                     <p class="font-extrabold text-lg text-center" style="color: var(--brand-dark)">Pore Dirt Cleansing</p>
                     <p class="text-xs font-semibold mt-1 text-center" style="color: var(--brand-muted)">after 1 wash</p>
                 </div>
-                <div class="bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
+                <div class="reveal bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
                     <img src="img/abnc-c3-clinical-03-blackhead-whitehead.jpg" alt="Blackhead and whitehead before and after" class="w-full h-32 object-cover rounded-xl mb-4">
-                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)">47.14%</h3>
+                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)"><span class="count" data-target="47.14" data-decimals="2">47.14</span>%</h3>
                     <p class="font-extrabold text-lg text-center" style="color: var(--brand-dark)">Blackhead Reduction</p>
                     <p class="text-xs font-semibold mt-1 text-center" style="color: var(--brand-muted)">after 1 wash</p>
                 </div>
-                <div class="bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
+                <div class="reveal bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
                     <div class="w-full h-32 mb-4 rounded-xl bg-white border border-gray-100 overflow-hidden">
                         <svg viewBox="0 0 300 128" class="w-full h-full" role="img" aria-label="Sebum 130.13 before, 42.03 after one wash">
                             <line x1="18" y1="100" x2="282" y2="100" stroke="#E5E5E5" stroke-width="2"></line>
@@ -318,19 +485,19 @@
                             <text x="150" y="56" font-size="13" font-weight="800" fill="#C62828" text-anchor="middle">-67.70%</text>
                         </svg>
                     </div>
-                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)">67.70%</h3>
+                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)"><span class="count" data-target="67.70" data-decimals="2">67.70</span>%</h3>
                     <p class="font-extrabold text-lg text-center" style="color: var(--brand-dark)">Sebum Reduction</p>
                     <p class="text-xs font-semibold mt-1 text-center" style="color: var(--brand-muted)">after 1 wash</p>
                 </div>
-                <div class="bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
+                <div class="reveal bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
                     <img src="img/abnc-c3-clinical-05-moisture-retention.jpg" alt="Skin moisture before, 30 minutes and 1 hour after cleansing" class="w-full h-32 object-cover rounded-xl mb-4">
-                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)">78.20%</h3>
+                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)"><span class="count" data-target="78.20" data-decimals="2">78.20</span>%</h3>
                     <p class="font-extrabold text-lg text-center" style="color: var(--brand-dark)">Moisture Retained</p>
                     <p class="text-xs font-semibold mt-1 text-center" style="color: var(--brand-muted)">30 min after rinse</p>
                 </div>
-                <div class="bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
+                <div class="reveal bg-[#FAF9F6] p-6 rounded-3xl border border-gray-100 flex flex-col items-center float-card">
                     <img src="img/abnc-c3-clinical-04-soothing-redness.jpg" alt="Skin redness before and after" class="w-full h-32 object-cover rounded-xl mb-4">
-                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)">0.00</h3>
+                    <h3 class="text-5xl font-black mb-2" style="color: var(--brand-red)"><span class="count" data-target="0.00" data-decimals="2">0.00</span></h3>
                     <p class="font-extrabold text-lg text-center" style="color: var(--brand-dark)">Irritation Score</p>
                     <p class="text-xs font-semibold mt-1 text-center" style="color: var(--brand-muted)">patch test, 34 adults</p>
                 </div>
@@ -342,7 +509,7 @@
     <section id="scripts" class="py-24 px-6" style="background: var(--brand-bg)">
         <div class="max-w-6xl mx-auto">
             <div class="text-center mb-16 reveal">
-                <h2 class="text-5xl md:text-6xl font-black tracking-tight" style="color: var(--brand-dark)">CREATOR SCRIPTS</h2>
+                <h2 class="section-title text-5xl md:text-6xl font-black tracking-tight" style="color: var(--brand-dark)">CREATOR SCRIPTS</h2>
                 <p class="text-2xl mt-4 font-medium" style="color: var(--brand-muted)">7 ready-to-shoot directions. Click "Copy" to grab the lines.</p>
             </div>
 
@@ -681,6 +848,65 @@
                 alert('Failed to copy: ' + err);
             });
         }
+        // 6. 顶部滚动进度条 + 导航阴影
+        const progressBar = document.getElementById('scroll-progress');
+        const navEl = document.querySelector('nav');
+        const onScroll = () => {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            progressBar.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+            navEl.classList.toggle('nav-scrolled', window.scrollY > 40);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        // 7. 数据数字滚动计数
+        const counters = document.querySelectorAll('.count');
+        const runCount = (el) => {
+            const target = parseFloat(el.dataset.target);
+            const dec = parseInt(el.dataset.decimals || '0', 10);
+            const duration = 1400;
+            el.textContent = (0).toFixed(dec);
+            const startTime = performance.now();
+            const tick = (now) => {
+                const p = Math.min((now - startTime) / duration, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                el.textContent = (target * eased).toFixed(dec);
+                if (p < 1) {
+                    requestAnimationFrame(tick);
+                } else {
+                    el.textContent = target.toFixed(dec);
+                }
+            };
+            requestAnimationFrame(tick);
+        };
+        const countObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    runCount(entry.target);
+                    countObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.6 });
+        counters.forEach(c => countObserver.observe(c));
+        // 8. 分区导航：滚动高亮当前区块
+        const navChips = Array.from(document.querySelectorAll('.nav-chip'));
+        const navTargets = navChips
+            .map(chip => document.querySelector(chip.getAttribute('href')))
+            .filter(Boolean);
+
+        const setActiveChip = (id) => {
+            navChips.forEach(chip => {
+                chip.classList.toggle('active', chip.getAttribute('href') === '#' + id);
+            });
+        };
+
+        const chipObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) setActiveChip(entry.target.id);
+            });
+        }, { rootMargin: '-140px 0px -55% 0px', threshold: 0 });
+
+        navTargets.forEach(sec => chipObserver.observe(sec));
     </script>
 </body>
 </html>
